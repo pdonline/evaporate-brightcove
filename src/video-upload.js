@@ -29,6 +29,7 @@ function VideoUpload(params) {
   this.file = param.required('file');
   this.signerUrl = param.required('signUploadEndpoint') + '/' + this.videoId;
   this.ingestUrl = param.required('ingestUploadEndpoint') + '/' + this.videoId;
+  this.headers = param.optional('headers', {});
 
   // Configure misc Evaporate options
   this.logging = param.required('logging');
@@ -123,7 +124,7 @@ VideoUpload.prototype.ingest = function ingest() {
   return postJson(this.ingestUrl, {
     bucket: this.bucket,
     objectKey: this.objectKey,
-  })
+  }, this.headers)
   .catch(function(response) {
     var err = new Error(response.statusText);
     err.response = response;

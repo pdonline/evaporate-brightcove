@@ -22,6 +22,9 @@ function BCUploader(params) {
   },
   this.root = param.required('root');
 
+  // optional parameters
+  this.headers = param.optional('headers', {});
+
   // optional callbacks
   this.callbacks = {
     onProgress: param.optional('onProgress', noop),
@@ -66,7 +69,7 @@ BCUploader.prototype.setupUI = function setupUI() {
   this.ui = new UIRoot({
     landingText: this.landingText,
     onFileSelected: function(file) {
-      self.callbacks.onFileSelected(file).then(function() {
+      self.callbacks.onFileSelected(file, self).then(function() {
         self.createVideo(file);
       });
     },
@@ -82,7 +85,7 @@ BCUploader.prototype.render = function render() {
 
 BCUploader.prototype.createVideo = function createVideo(file) {
   var self = this;
-  return postJson(this.urls.createVideoEndpoint, {name: file.name})
+  return postJson(this.urls.createVideoEndpoint, {name: file.name}, this.headers)
     .catch(function() {
       self.ui.showError(self.createVideoFailureText);
     })
@@ -90,6 +93,7 @@ BCUploader.prototype.createVideo = function createVideo(file) {
       var params = Object.assign(response, self.callbacks, self.urls, {
         logging: self.logging,
         file: file,
+        headers: self.headers,
         ui: self.videoUI,
         overrides: self.overrides
       });
